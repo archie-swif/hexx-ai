@@ -1,6 +1,7 @@
 package com.ryabokon.hex;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 //       (0, 1)
@@ -12,7 +13,7 @@ import java.util.*;
 public class HexBoard {
 
     private Map<String, Hex> combs = new HashMap<>();
-    private List<Hex> markedCombs = new ArrayList<>(18);
+    private List<Hex> markedCombs = new ArrayList<>();
     private boolean isInMarkedState = false;
     private Hex selectedHex;
 
@@ -20,7 +21,7 @@ public class HexBoard {
         combs.put("00", new Hex(Props.EMPTY));
         combs.put("01", new Hex(Props.EMPTY));
         combs.put("0-1", new Hex(Props.EMPTY));
-        combs.put("-11", new Hex(Props.RUBY)); //*
+        combs.put("-11", new Hex(Props.EMPTY));
         combs.put("-10", new Hex(Props.EMPTY));
         combs.put("10", new Hex(Props.EMPTY));
         combs.put("1-1", new Hex(Props.EMPTY));
@@ -37,17 +38,30 @@ public class HexBoard {
             }
         } else {
             if (hex.isMarkedClone()) {
-                hex.content = Props.RUBY;
+                hex.content = selectedHex.content;
             }
 
             if (hex.isMarkedMove()) {
-                hex.content = Props.RUBY;
+                hex.content = selectedHex.content;
                 selectedHex.content = Props.EMPTY;
             }
+            fight(x, y);
+
             cleanMovementMarks();
             selectedHex = null;
 
         }
+        printBoard();
+    }
+
+    protected void fight(int x, int y) {
+        printBoard();
+        Props oppositeProp = Props.RUBY.equals(selectedHex.content) ? Props.NEON : Props.RUBY;
+
+        getFirstCircle(x, y)
+                .stream()
+                .filter(h -> oppositeProp.equals(h.content))
+                .forEach(h -> h.content = selectedHex.content);
     }
 
     protected void cleanMovementMarks() {
@@ -60,44 +74,58 @@ public class HexBoard {
     }
 
     protected void markSurroundingsForMove(int x, int y) {
-        //TODO optimize 18 similar lines?
 
-        //First circle
-        markAndAdd(x + 0, y + 1, Props.CLONE);
-        markAndAdd(x + 1, y + 0, Props.CLONE);
-        markAndAdd(x + 1, y - 1, Props.CLONE);
-        markAndAdd(x + 0, y - 1, Props.CLONE);
-        markAndAdd(x - 1, y + 0, Props.CLONE);
-        markAndAdd(x - 1, y + 1, Props.CLONE);
+        List<Hex> firstCircle = getFirstCircle(x, y)
+                .stream()
+                .filter(Hex::isEmpty)
+                .peek(h -> h.content = Props.CLONE)
+                .collect(Collectors.toList());
 
-        //Second circle
-        markAndAdd(x + 0, y + 2, Props.MOVE);
-        markAndAdd(x + 1, y + 1, Props.MOVE);
-        markAndAdd(x + 2, y + 0, Props.MOVE);
-        markAndAdd(x + 2, y - 1, Props.MOVE);
+        List<Hex> secondCircle = getSecondCircle(x, y)
+                .stream()
+                .filter(Hex::isEmpty)
+                .peek(h -> h.content = Props.MOVE)
+                .collect(Collectors.toList());
 
-        markAndAdd(x + 2, y - 2, Props.MOVE);
-        markAndAdd(x + 1, y - 2, Props.MOVE);
-        markAndAdd(x + 0, y - 2, Props.MOVE);
-        markAndAdd(x - 1, y - 1, Props.MOVE);
-
-        markAndAdd(x - 2, y + 0, Props.MOVE);
-        markAndAdd(x - 2, y + 1, Props.MOVE);
-        markAndAdd(x - 2, y + 2, Props.MOVE);
-        markAndAdd(x - 1, y + 2, Props.MOVE);
+        markedCombs.addAll(firstCircle);
+        markedCombs.addAll(secondCircle);
 
         isInMarkedState = true;
     }
 
-    protected void markAndAdd(int x, int y, Props prop) {
-        Optional.ofNullable(getHex(x, y))
-                .filter(Hex::isEmpty)
-                .ifPresent(h -> {
-                    h.content = prop;
-                    markedCombs.add(h);
-                });
+    protected List<Hex> getFirstCircle(int x, int y) {
+        //TODO optimize 18 similar lines?
+
+        List<Hex> circle = new ArrayList<>();
+        circle.add(getHex(x + 0, y + 1));
+        circle.add(getHex(x + 1, y + 0));
+        circle.add(getHex(x + 1, y - 1));
+        circle.add(getHex(x + 0, y - 1));
+        circle.add(getHex(x - 1, y + 0));
+        circle.add(getHex(x - 1, y + 1));
+        circle.removeIf(Objects::isNull);
+        return circle;
     }
 
+    protected List<Hex> getSecondCircle(int x, int y) {
+        //TODO optimize 18 similar lines?
+
+        List<Hex> circle = new ArrayList<>();
+        circle.add(getHex(x + 0, y + 2));
+        circle.add(getHex(x + 1, y + 1));
+        circle.add(getHex(x + 2, y + 0));
+        circle.add(getHex(x + 2, y - 1));
+        circle.add(getHex(x + 2, y - 2));
+        circle.add(getHex(x + 1, y - 2));
+        circle.add(getHex(x + 0, y - 2));
+        circle.add(getHex(x - 1, y - 1));
+        circle.add(getHex(x - 2, y + 0));
+        circle.add(getHex(x - 2, y + 1));
+        circle.add(getHex(x - 2, y + 2));
+        circle.add(getHex(x - 1, y + 2));
+        circle.removeIf(Objects::isNull);
+        return circle;
+    }
 
     //------------------ visualization -------------
 
