@@ -32,20 +32,35 @@ public class Main {
         HexBoard hexx = new HexBoard();
         hexx.printBoard();
 
-        hexx.selectComb(-1,1);
+        hexx.selectHex(-1, 1);
         hexx.printBoard();
 
-        hexx.selectComb(0,0);
+        hexx.selectHex(0, 0);
         hexx.printBoard();
 
-        hexx.selectComb(0,0);
+        hexx.selectHex(0, 0);
         hexx.printBoard();
 
-        hexx.selectComb(-1,1);
+        hexx.selectHex(-1, 1);
+        hexx.printBoard();
+    }
+
+    @Test
+    public void longMoveGame() {
+        HexBoard hexx = new HexBoard();
         hexx.printBoard();
 
+        hexx.selectHex(-1, 1);
+        hexx.printBoard();
 
+        hexx.selectHex(1, -1);
+        hexx.printBoard();
 
+        hexx.selectHex(1, -1);
+        hexx.printBoard();
+
+        hexx.selectHex(0, -1);
+        hexx.printBoard();
     }
 
 

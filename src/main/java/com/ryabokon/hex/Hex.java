@@ -2,7 +2,6 @@ package com.ryabokon.hex;
 
 public class Hex {
     Props content;
-    Hex selectedBy;
 
     public Hex(Props content) {
         this.content = content;
@@ -14,6 +13,14 @@ public class Hex {
 
     public boolean isMarked() {
         return Props.CLONE.equals(content) || Props.MOVE.equals(content);
+    }
+
+    public boolean isMarkedClone() {
+        return Props.CLONE.equals(content);
+    }
+
+    public boolean isMarkedMove() {
+        return Props.MOVE.equals(content);
     }
 
     public boolean isProp() {

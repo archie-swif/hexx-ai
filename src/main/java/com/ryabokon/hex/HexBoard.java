@@ -1,7 +1,6 @@
 package com.ryabokon.hex;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 //       (0, 1)
@@ -12,9 +11,10 @@ import java.util.stream.Collectors;
 
 public class HexBoard {
 
-    Map<String, Hex> combs = new HashMap<>();
-    List<Hex> markedCombs = Collections.EMPTY_LIST;
-    boolean isInMarkedState = false;
+    private Map<String, Hex> combs = new HashMap<>();
+    private List<Hex> markedCombs = new ArrayList<>(18);
+    private boolean isInMarkedState = false;
+    private Hex selectedHex;
 
     public HexBoard() {
         combs.put("00", new Hex(Props.EMPTY));
@@ -27,29 +27,27 @@ public class HexBoard {
     }
 
 
-    public void selectComb(int x, int y) {
+    public void selectHex(int x, int y) {
         Hex hex = getHex(x, y);
 
         if (!isInMarkedState) {
             if (hex.isProp()) {
                 markSurroundingsForMove(x, y);
+                selectedHex = hex;
             }
         } else {
-            if (hex.isMarked()) {
-                putProp(x, y, Props.RUBY);
+            if (hex.isMarkedClone()) {
+                hex.content = Props.RUBY;
+            }
+
+            if (hex.isMarkedMove()) {
+                hex.content = Props.RUBY;
+                selectedHex.content = Props.EMPTY;
             }
             cleanMovementMarks();
+            selectedHex = null;
+
         }
-    }
-
-    protected void markSurroundingsForMove(int x, int y) {
-        markedCombs = getSurroundingHexes(x, y)
-                .stream()
-                .filter(Hex::isEmpty)
-                .peek(h -> h.content = Props.CLONE)
-                .collect(Collectors.toList());
-        isInMarkedState = true;
-
     }
 
     protected void cleanMovementMarks() {
@@ -57,19 +55,47 @@ public class HexBoard {
                 .stream()
                 .filter(Hex::isMarked)
                 .forEach(h -> h.content = Props.EMPTY);
+        markedCombs.clear();
         isInMarkedState = false;
     }
 
-    protected List<Hex> getSurroundingHexes(int x, int y) {
-        List<Hex> surroundings = new ArrayList<>(6);
+    protected void markSurroundingsForMove(int x, int y) {
+        //TODO optimize 18 similar lines?
 
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                if (i == 0 && j == 0) continue;
-                Optional.ofNullable(getHex(x + i, y + j)).ifPresent(surroundings::add);
-            }
-        }
-        return surroundings;
+        //First circle
+        markAndAdd(x + 0, y + 1, Props.CLONE);
+        markAndAdd(x + 1, y + 0, Props.CLONE);
+        markAndAdd(x + 1, y - 1, Props.CLONE);
+        markAndAdd(x + 0, y - 1, Props.CLONE);
+        markAndAdd(x - 1, y + 0, Props.CLONE);
+        markAndAdd(x - 1, y + 1, Props.CLONE);
+
+        //Second circle
+        markAndAdd(x + 0, y + 2, Props.MOVE);
+        markAndAdd(x + 1, y + 1, Props.MOVE);
+        markAndAdd(x + 2, y + 0, Props.MOVE);
+        markAndAdd(x + 2, y - 1, Props.MOVE);
+
+        markAndAdd(x + 2, y - 2, Props.MOVE);
+        markAndAdd(x + 1, y - 2, Props.MOVE);
+        markAndAdd(x + 0, y - 2, Props.MOVE);
+        markAndAdd(x - 1, y - 1, Props.MOVE);
+
+        markAndAdd(x - 2, y + 0, Props.MOVE);
+        markAndAdd(x - 2, y + 1, Props.MOVE);
+        markAndAdd(x - 2, y + 2, Props.MOVE);
+        markAndAdd(x - 1, y + 2, Props.MOVE);
+
+        isInMarkedState = true;
+    }
+
+    protected void markAndAdd(int x, int y, Props prop) {
+        Optional.ofNullable(getHex(x, y))
+                .filter(Hex::isEmpty)
+                .ifPresent(h -> {
+                    h.content = prop;
+                    markedCombs.add(h);
+                });
     }
 
 
