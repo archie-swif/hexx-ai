@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ryabokon.hex</groupId>
-    <artifactId>hex-ai</artifactId>
+    <groupId>com.ryabokon.comb</groupId>
+    <artifactId>comb-ai</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
