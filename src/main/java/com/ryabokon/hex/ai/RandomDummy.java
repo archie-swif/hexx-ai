@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class RandomDummy {
+public class RandomDummy implements HexAi {
     private Map<String, Item> board;
     private Item myItem;
     private Supplier<Map<String, Item>> getBoard;
@@ -35,11 +35,11 @@ public class RandomDummy {
     }
 
     private String findCloneSpotCoordinates() {
-        return findCoordinateByItemType(Item.CLONE).orElseGet(this::findMoveSpotCoordinates);
+        return findCoordinateByItemType(Item.CLONE).orElseGet(this::findJumpSpotCoordinates);
     }
 
-    private String findMoveSpotCoordinates() {
-        return findCoordinateByItemType(Item.MOVE).orElseThrow(RuntimeException::new);
+    private String findJumpSpotCoordinates() {
+        return findCoordinateByItemType(Item.JUMP).orElseThrow(() -> new RuntimeException("No moves for " + myItem));
     }
 
     private Optional<String> findCoordinateByItemType(Item type) {

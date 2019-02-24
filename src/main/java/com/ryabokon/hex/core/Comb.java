@@ -8,7 +8,7 @@ public class Comb {
     }
 
     public boolean isMarked() {
-        return Item.CLONE.equals(content) || Item.MOVE.equals(content);
+        return Item.CLONE.equals(content) || Item.JUMP.equals(content);
     }
 
     public boolean isMarkedClone() {
@@ -16,7 +16,7 @@ public class Comb {
     }
 
     public boolean isMarkedMove() {
-        return Item.MOVE.equals(content);
+        return Item.JUMP.equals(content);
     }
 
     public boolean hasPlayer() {

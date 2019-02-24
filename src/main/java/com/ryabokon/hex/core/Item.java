@@ -6,5 +6,11 @@ public enum Item {
     EMPTY,
     CLONE,
     TARGET,
-    MOVE
+    JUMP;
+
+    public Item getOpposite() {
+        if (this.equals(RUBY)) return NEON;
+        if (this.equals(NEON)) return RUBY;
+        throw new UnsupportedOperationException("No opposite for " + this);
+    }
 }

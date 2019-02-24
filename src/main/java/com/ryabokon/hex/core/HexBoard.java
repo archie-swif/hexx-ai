@@ -5,6 +5,9 @@ import com.ryabokon.hex.ui.ConsolePrinter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ryabokon.hex.core.State.SELECTED_FOR_MOVE;
+import static com.ryabokon.hex.core.State.WAITING_FOR_SELECTION;
+
 
 //               (0, 2)
 //        (-1, 2)      (1, 1)
@@ -16,12 +19,11 @@ import java.util.stream.Collectors;
 //        (-1,-1)      (1,-2)
 //               (0,-2)
 
-
 public class HexBoard {
 
     private Map<String, Comb> combs = new HashMap<>();
     private List<Comb> markedCombs = new ArrayList<>();
-    private boolean boardInMarkedState = false;
+    private State boardState = WAITING_FOR_SELECTION;
     private Comb selectedComb;
     private ConsolePrinter printer = new ConsolePrinter(this::getBoardMap);
 
@@ -72,7 +74,7 @@ public class HexBoard {
     public void selectComb(int x, int y) {
         Comb clickedComb = getComb(x, y);
 
-        if (boardInMarkedState) {
+        if (SELECTED_FOR_MOVE.equals(boardState)) {
             if (clickedComb.isMarkedClone()) {
 
                 clickedComb.content = Item.TARGET;
@@ -104,7 +106,7 @@ public class HexBoard {
     }
 
     protected void fight(int x, int y) {
-        Item enemyItem = Item.RUBY.equals(selectedComb.content) ? Item.NEON : Item.RUBY;
+        Item enemyItem = selectedComb.content.getOpposite();
 
         getFirstCircle(x, y)
                 .stream()
@@ -118,7 +120,7 @@ public class HexBoard {
                 .filter(Comb::isMarked)
                 .forEach(h -> h.content = Item.EMPTY);
         markedCombs.clear();
-        boardInMarkedState = false;
+        boardState = WAITING_FOR_SELECTION;
     }
 
     protected void markSurroundingsForMove(int x, int y) {
@@ -132,15 +134,20 @@ public class HexBoard {
         List<Comb> secondCircle = getSecondCircle(x, y)
                 .stream()
                 .filter(Comb::isEmpty)
-                .peek(h -> h.content = Item.MOVE)
+                .peek(h -> h.content = Item.JUMP)
                 .collect(Collectors.toList());
 
         markedCombs.addAll(firstCircle);
         markedCombs.addAll(secondCircle);
 
-        boardInMarkedState = true;
+        boardState = SELECTED_FOR_MOVE;
     }
 
+    //       (0, 1)
+    // (-1,1)      (1, 0)
+    //       (0, 0)
+    // (-1,0)      (1,-1)
+    //       (0,-1)
     protected List<Comb> getFirstCircle(int x, int y) {
         //TODO optimize 18 similar lines?
 

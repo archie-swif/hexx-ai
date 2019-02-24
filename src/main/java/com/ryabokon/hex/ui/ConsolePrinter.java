@@ -27,7 +27,7 @@ public class ConsolePrinter {
                 return "o";
             case EMPTY:
                 return " ";
-            case MOVE:
+            case JUMP:
                 return ".";
             case CLONE:
                 return ":";
